@@ -4,7 +4,6 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import com.nambv.android_stackoverflow.R
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.utils.Constants.PAGE_SIZE
 import com.nambv.android_stackoverflow.utils.EndlessRecyclerOnScrollListener
+import com.nambv.android_stackoverflow.utils.VerticalSpaceItemDecoration
 import com.nambv.android_stackoverflow.utils.getErrorMessage
 import com.nambv.android_stackoverflow.view.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_users.*
@@ -50,7 +50,7 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
     private fun setupRecyclerView() {
 
         val layoutManager = LinearLayoutManager(context)
-        val divider = DividerItemDecoration(context, DividerItemDecoration.VERTICAL)
+        val divider = VerticalSpaceItemDecoration(30)
 
         adapter = UsersAdapter(users)
         scrollListener = object : EndlessRecyclerOnScrollListener(layoutManager) {

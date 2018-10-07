@@ -6,9 +6,7 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"
     android:foreground="?android:attr/selectableItemBackground"
-    app:cardCornerRadius="6dp"
-    app:cardElevation="0dp"
-    app:cardMaxElevation="0dp">
+    app:cardCornerRadius="6dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -43,8 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:clickable="true"
-            android:src="@drawable/ic_unbookmark"
-            tools:ignore="ContentDescription,KeyboardInaccessibleWidget" />
+            tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+            tools:src="@drawable/ic_unbookmark" />
 
         <TextView
             android:id="@+id/tvReputation"

@@ -34,6 +34,15 @@ class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) 
         holder.itemView.tvUserName.text = item.displayName
         holder.itemView.tvReputation.text = item.reputation.toString()
 
+        if (null == item.bookmarked) {
+            holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)
+        } else {
+            if (item.bookmarked == true)
+                holder.itemView.iconBookmark.setImageResource(R.drawable.ic_bookmark)
+            else
+                holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)
+        }
+
         holder.itemView.tvLocation.text =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     Html.fromHtml(item.location, Html.FROM_HTML_MODE_LEGACY)
