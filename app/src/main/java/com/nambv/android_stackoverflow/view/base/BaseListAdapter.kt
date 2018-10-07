@@ -1,6 +1,5 @@
 package com.nambv.android_stackoverflow.view.base
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 
@@ -8,7 +7,7 @@ import android.view.ViewGroup
 /**
  * Used to extended list adapter for RecyclerView
  */
-abstract class BaseListAdapter<T>(protected var context: Context?, objects: MutableList<T>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+abstract class BaseListAdapter<T>(objects: MutableList<T>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var objects: MutableList<T> = mutableListOf()
 

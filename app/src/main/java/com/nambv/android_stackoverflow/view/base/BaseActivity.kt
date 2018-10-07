@@ -5,14 +5,11 @@ package com.nambv.android_stackoverflow.view.base
 import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.widget.TextView
 import android.widget.Toast
 import com.github.ajalt.timberkt.Timber
+import com.nambv.android_stackoverflow.utils.Constants
 
 
 @Suppress("DEPRECATION")
@@ -32,35 +29,8 @@ open class BaseActivity : AppCompatActivity(), BaseFragment.Callback {
         }
     }
 
-    protected fun addFragment(containerViewId: Int, fragment: Fragment) {
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.add(containerViewId, fragment)
-        fragmentTransaction.commit()
-    }
-
-    protected fun removeFragment(fragment: Fragment) {
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.remove(fragment)
-        fragmentTransaction.commit()
-    }
-
-    protected fun replaceFragment(containerViewId: Int, fragment: Fragment) {
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(containerViewId, fragment)
-        fragmentTransaction.commit()
-    }
-
     fun showToast(message: String?) {
-        Toast.makeText(this, message ?: "", Toast.LENGTH_SHORT).show()
-    }
-
-    fun showSnackBar(message: String?) {
-        val snackbar = Snackbar.make(findViewById(android.R.id.content), message
-                ?: "", Snackbar.LENGTH_SHORT)
-        val sbView = snackbar.view
-        val textView = sbView.findViewById(android.support.design.R.id.snackbar_text) as TextView
-        textView.setTextColor(ContextCompat.getColor(this, android.R.color.white))
-        snackbar.show()
+        Toast.makeText(this, message ?: Constants.EMPTY, Toast.LENGTH_SHORT).show()
     }
 
     fun hideLoading() {

@@ -72,10 +72,6 @@ abstract class BaseFragment : Fragment() {
         mActivity?.showToast(message)
     }
 
-    fun showSnackBar(message: String) {
-        mActivity?.showSnackBar(message)
-    }
-
     fun hideLoading() {
         mActivity?.hideLoading()
     }

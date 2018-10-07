@@ -9,9 +9,8 @@ class UsersViewModel(application: Application) : AndroidViewModel(application) {
 
     private var usersLiveData: MutableLiveData<UsersState>? = null
 
-    fun fetchUsers(): MutableLiveData<UsersState> {
-        if (null == usersLiveData)
-            usersLiveData = UsersRepository.fetchUsers(getApplication())
+    fun fetchUsers(page: Int, pageSize: Int): MutableLiveData<UsersState> {
+        usersLiveData = UsersRepository.fetchUsers(getApplication(), page, pageSize)
         return usersLiveData as MutableLiveData<UsersState>
     }
 }

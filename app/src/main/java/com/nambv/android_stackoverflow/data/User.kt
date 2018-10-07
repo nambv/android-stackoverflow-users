@@ -14,7 +14,7 @@ data class User(
         @SerializedName("account_id") var accountId: Int = 0,
         @SerializedName("is_employee") var isEmployee: Boolean = false,
         @SerializedName("last_modified_date") var lastModifiedDate: Int = 0,
-        @SerializedName("last_access_date") var lastAccessDate: Int = 0,
+        @SerializedName("last_access_date") var lastAccessDate: Long = 0,
         @SerializedName("reputation_change_year") var reputationChangeYear: Int = 0,
         @SerializedName("reputation_change_quarter") var reputationChangeQuarter: Int = 0,
         @SerializedName("reputation_change_month") var reputationChangeMonth: Int = 0,
