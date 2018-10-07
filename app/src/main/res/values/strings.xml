@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">android-stackoverflow</string>
+
+    <string name="label_error">Error</string>
+
+    <string name="msg_connection_timeout">Cannot connect to server. Please check your connection strength and try again</string>
 </resources>
