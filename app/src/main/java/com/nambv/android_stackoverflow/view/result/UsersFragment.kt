@@ -19,7 +19,18 @@ import com.nambv.android_stackoverflow.view.base.BaseFragment
 import kotlinx.android.synthetic.main.fragment_users.*
 
 
-class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
+class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener, UsersAdapter.Callback {
+
+    override fun onEditBookmark(user: User) {
+        viewModel.updateUser(user).observe(this, Observer {
+            when (it) {
+
+                is UsersState.Updated -> adapter.notifyDataSetChanged()
+
+                is UsersState.Error -> showToast(context.getErrorMessage(it.throwable))
+            }
+        })
+    }
 
     private lateinit var viewModel: UsersViewModel
     private lateinit var adapter: UsersAdapter
@@ -53,6 +64,8 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
         val divider = VerticalSpaceItemDecoration(30)
 
         adapter = UsersAdapter(users)
+        adapter.setCallback(this)
+
         scrollListener = object : EndlessRecyclerOnScrollListener(layoutManager) {
             override fun onLoadMore(currentOffset: Int) {
                 fetchUsers()
@@ -82,8 +95,6 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
 
     private fun fetchUsers() {
 
-        Timber.w { "fetchUsers: $page" }
-
         viewModel.fetchUsers(page, PAGE_SIZE).observe(this, Observer {
 
             when (it) {
@@ -96,6 +107,7 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
                     hideLoadingView()
                     showToast(context.getErrorMessage(it.throwable))
                 }
+
                 is UsersState.Data -> {
                     hideLoadingView()
                     onUsersReceived(it.users)

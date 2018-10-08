@@ -1,6 +1,7 @@
 package com.nambv.android_stackoverflow.data
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
@@ -9,8 +10,6 @@ data class User(
 
         @PrimaryKey
         @SerializedName("user_id") var userId: Int = 0,
-
-//        @SerializedName("badge_counts") var badgeCounts: BadgeCounts = BadgeCounts(),
         @SerializedName("account_id") var accountId: Int = 0,
         @SerializedName("is_employee") var isEmployee: Boolean = false,
         @SerializedName("last_modified_date") var lastModifiedDate: Int = 0,
@@ -29,4 +28,4 @@ data class User(
         @SerializedName("link") var link: String = "",
         @SerializedName("profile_image") var profileImage: String = "",
         @SerializedName("display_name") var displayName: String = "",
-        var bookmarked: Boolean? = false)
+        @Ignore var bookmarked: Boolean? = false)

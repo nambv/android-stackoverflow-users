@@ -18,10 +18,10 @@ interface UserDao {
     @Query("SELECT * FROM user WHERE user.userId = :id")
     fun getUser(id: String): Maybe<User>
 
-    @Insert(onConflict = IGNORE)
+    @Insert(onConflict = REPLACE)
     fun insert(user: User)
 
-    @Insert(onConflict = IGNORE)
+    @Insert(onConflict = REPLACE)
     fun insert(list: List<User>)
 
     @Insert(onConflict = REPLACE)

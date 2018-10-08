@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.Glide
+import com.github.ajalt.timberkt.Timber
 import com.nambv.android_stackoverflow.R
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.utils.Constants.DATE_FORMAT
@@ -16,6 +17,11 @@ import com.nambv.android_stackoverflow.view.base.BaseListAdapter
 import kotlinx.android.synthetic.main.item_user.view.*
 
 class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) {
+
+    private lateinit var callback: Callback
+    fun setCallback(callback: Callback) {
+        this.callback = callback
+    }
 
     class RecyclerViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView)
 
@@ -33,6 +39,8 @@ class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) 
 
         holder.itemView.tvUserName.text = item.displayName
         holder.itemView.tvReputation.text = item.reputation.toString()
+
+        Timber.w { "bookmarked: ${item.bookmarked}" }
 
         if (null == item.bookmarked) {
             holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)
@@ -53,11 +61,21 @@ class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) 
         holder.itemView.tvLastAccess.text = (item.lastAccessDate * 1000).toDate().toString(DATE_FORMAT)
 
         holder.itemView.iconBookmark.setOnClickListener {
+            if (null == item.bookmarked)
+                item.bookmarked = true
+            else
+                item.bookmarked = !(item.bookmarked!!)
 
+            Timber.w { "bookmarked: ${item.bookmarked}" }
+            callback.onEditBookmark(item)
         }
 
         holder.itemView.setOnClickListener {
 
         }
+    }
+
+    interface Callback {
+        fun onEditBookmark(user: User)
     }
 }
