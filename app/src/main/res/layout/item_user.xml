@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:foreground="?android:attr/selectableItemBackground"
+    app:cardCornerRadius="6dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFF"
+        android:padding="16dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/userAvatar"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_account"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="0.5dp"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tvUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/iconBookmark"
+            android:layout_toEndOf="@id/userAvatar"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Bui Vu Nam" />
+
+        <ImageView
+            android:id="@+id/iconBookmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:clickable="true"
+            tools:ignore="ContentDescription,KeyboardInaccessibleWidget"
+            tools:src="@drawable/ic_unbookmark" />
+
+        <TextView
+            android:id="@+id/tvReputation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvUserName"
+            android:layout_marginTop="4dp"
+            android:layout_toEndOf="@id/userAvatar"
+            tools:text="Reputation" />
+
+        <TextView
+            android:id="@+id/tvLocation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvReputation"
+            android:layout_marginTop="4dp"
+            android:layout_toEndOf="@id/userAvatar"
+            tools:text="Location" />
+
+        <TextView
+            android:id="@+id/tvLastAccess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvLocation"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="4dp"
+            android:textSize="12sp"
+            tools:text="Last access date" />
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

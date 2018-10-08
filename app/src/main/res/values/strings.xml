@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">android-stackoverflow</string>
+    <string name="app_name">StackOverflow Users</string>
+
+    <string name="label_error">Error</string>
+
+    <string name="error_unknown">Unknown error</string>
+    <string name="error_internet_connection">Check your internet connection</string>
+    <string name="error_bad_request">Unsubmitted email or password</string>
+    <string name="error_wrong_credentials">Wrong email or password</string>
+    <string name="error_wrong_token">Token is missing or incorrect</string>
+    <string name="error_not_acceptable">Incorrect \'Accept\' header</string>
+    <string name="error_unsupported_media_type">\'Content-Type\' is not \'application/json\'</string>
+    <string name="error_timeout">This is taking too long…</string>
+    <string name="error_not_found">Blog not found</string>
 </resources>
