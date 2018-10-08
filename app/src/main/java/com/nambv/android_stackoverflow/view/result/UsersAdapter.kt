@@ -40,7 +40,7 @@ class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) 
         holder.itemView.tvUserName.text = item.displayName
         holder.itemView.tvReputation.text = item.reputation.toString()
 
-        Timber.w { "bookmarked: ${item.bookmarked}" }
+        Timber.w { "${item.displayName}: ${item.bookmarked}" }
 
         if (null == item.bookmarked) {
             holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)

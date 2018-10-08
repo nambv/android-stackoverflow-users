@@ -7,6 +7,7 @@ import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.data.local.db.AppDatabase
 import com.nambv.android_stackoverflow.service.UserService
 import com.nambv.android_stackoverflow.view.result.UsersState
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -57,7 +58,7 @@ object UsersRepository {
         val userLiveData = MutableLiveData<UsersState>()
         val userDao = AppDatabase.get(application).userDao()
 
-        updateDisposable = Single.fromCallable { userDao.update(user) }
+        updateDisposable = Completable.fromAction { userDao.update(user) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
