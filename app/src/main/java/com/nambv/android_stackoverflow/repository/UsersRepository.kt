@@ -4,11 +4,13 @@ import android.app.Application
 import android.arch.lifecycle.MutableLiveData
 import com.github.ajalt.timberkt.Timber
 import com.nambv.android_stackoverflow.data.User
+import com.nambv.android_stackoverflow.data.local.dao.UserDao
 import com.nambv.android_stackoverflow.data.local.db.AppDatabase
 import com.nambv.android_stackoverflow.service.UserService
+import com.nambv.android_stackoverflow.utils.getOffsetByPage
 import com.nambv.android_stackoverflow.view.result.UsersState
 import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -18,7 +20,7 @@ object UsersRepository {
     private var usersDisposable: Disposable? = null
     private var updateDisposable: Disposable? = null
 
-    fun fetchUsers(application: Application, page: Int, pageSize: Int): MutableLiveData<UsersState> {
+    fun fetchUsers(application: Application, page: Int, pageSize: Int, bookmarked: Boolean?): MutableLiveData<UsersState> {
 
         val usersLiveData = MutableLiveData<UsersState>()
 
@@ -31,18 +33,12 @@ object UsersRepository {
 
         usersDisposable?.let { if (usersDisposable?.isDisposed == false) usersDisposable?.dispose() }
 
-        usersDisposable = UserService.fetchUsers(page, pageSize)
-                .flatMapMaybe { remotes ->
-                    if (remotes.isNotEmpty()) userDao.insert(remotes)
-                    return@flatMapMaybe userDao.getUserList()
-                }
+        usersDisposable = filterUsers(page, pageSize, bookmarked, userDao)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         {
-                            if (it.isNotEmpty()) {
-                                usersLiveData.postValue(UsersState.Data(it))
-                            }
+                            usersLiveData.postValue(UsersState.Data(it))
                         },
                         {
                             usersLiveData.postValue(UsersState.Error(it))
@@ -71,5 +67,18 @@ object UsersRepository {
                         })
 
         return userLiveData
+    }
+
+    private fun filterUsers(page: Int, pageSize: Int, bookmarked: Boolean?, userDao: UserDao): Maybe<List<User>> {
+
+        if (null == bookmarked) {
+            return UserService.fetchUsers(page, pageSize)
+                    .flatMapMaybe { remotes ->
+                        if (remotes.isNotEmpty()) userDao.insert(remotes)
+                        return@flatMapMaybe userDao.getUserList(pageSize, getOffsetByPage(page))
+                    }
+        } else {
+            return userDao.searchUserList(bookmarked)
+        }
     }
 }

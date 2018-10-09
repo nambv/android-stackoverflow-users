@@ -8,11 +8,14 @@ import io.reactivex.Maybe
 @Dao
 interface UserDao {
 
-    @Query("SELECT * FROM user")
-    fun getUserList(): Maybe<List<User>>
+    @Query("SELECT * FROM user WHERE user.bookmarked = :bookmarked")
+    fun searchUserList(bookmarked: Boolean): Maybe<List<User>>
+
+    @Query("SELECT * FROM user LIMIT :limit OFFSET :offset")
+    fun getUserList(limit: Int, offset: Int): Maybe<List<User>>
 
     @Query("SELECT * FROM user WHERE user.userId = :id")
-    fun getUser(id: String): Maybe<User>
+    fun getUser(id: Int): Maybe<User>
 
     @Insert(onConflict = IGNORE)
     fun insert(user: User)

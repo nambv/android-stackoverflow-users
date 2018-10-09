@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">StackOverflow Users</string>
 
+    <string name="label_filter_users">Filter Users</string>
+    <string name="label_filter">Filter</string>
+    <string name="label_ok">OK</string>
+    <string name="label_cancel">Cancel</string>
     <string name="label_error">Error</string>
 
     <string name="error_unknown">Unknown error</string>

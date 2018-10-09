@@ -11,8 +11,8 @@ class UsersViewModel(application: Application) : AndroidViewModel(application) {
     private var usersLiveData: MutableLiveData<UsersState>? = null
     private var userLiveData: MutableLiveData<UsersState>? = null
 
-    fun fetchUsers(page: Int, pageSize: Int): MutableLiveData<UsersState> {
-        usersLiveData = UsersRepository.fetchUsers(getApplication(), page, pageSize)
+    fun fetchUsers(page: Int, pageSize: Int, bookmarked: Boolean?): MutableLiveData<UsersState> {
+        usersLiveData = UsersRepository.fetchUsers(getApplication(), page, pageSize, bookmarked)
         return usersLiveData as MutableLiveData<UsersState>
     }
 

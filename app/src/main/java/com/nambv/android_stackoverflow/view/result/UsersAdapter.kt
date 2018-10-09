@@ -1,8 +1,6 @@
 package com.nambv.android_stackoverflow.view.result
 
-import android.os.Build
 import android.support.v7.widget.RecyclerView
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +9,7 @@ import com.github.ajalt.timberkt.Timber
 import com.nambv.android_stackoverflow.R
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.utils.Constants.DATE_FORMAT
+import com.nambv.android_stackoverflow.utils.getHtmlText
 import com.nambv.android_stackoverflow.utils.toDate
 import com.nambv.android_stackoverflow.utils.toString
 import com.nambv.android_stackoverflow.view.base.BaseListAdapter
@@ -37,10 +36,9 @@ class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) 
                 .load(item.profileImage)
                 .into(holder.itemView.userAvatar)
 
-        holder.itemView.tvUserName.text = item.displayName
-        holder.itemView.tvReputation.text = item.reputation.toString()
+        holder.itemView.tvUserName.text = item.displayName.getHtmlText()
 
-        Timber.w { "${item.displayName}: ${item.bookmarked}" }
+        holder.itemView.tvReputation.text = item.reputation.toString()
 
         if (null == item.bookmarked) {
             holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)
@@ -51,13 +49,7 @@ class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) 
                 holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)
         }
 
-        holder.itemView.tvLocation.text =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(item.location, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(item.location)
-                }
-
+        holder.itemView.tvLocation.text = item.location.getHtmlText()
         holder.itemView.tvLastAccess.text = (item.lastAccessDate * 1000).toDate().toString(DATE_FORMAT)
 
         holder.itemView.iconBookmark.setOnClickListener {

@@ -3,7 +3,11 @@
 package com.nambv.android_stackoverflow.utils
 
 import android.content.Context
+import android.os.Build
+import android.text.Html
+import android.text.Spanned
 import com.nambv.android_stackoverflow.R
+import com.nambv.android_stackoverflow.utils.Constants.PAGE_SIZE
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
@@ -32,4 +36,25 @@ fun Long.toDate(): Date {
 fun Date.toString(pattern: String): String {
     val formatter = SimpleDateFormat(pattern, Locale.getDefault())
     return formatter.format(this)
+}
+
+fun getOffsetByPage(page: Int): Int {
+    return (page - 1) * PAGE_SIZE
+}
+
+@Suppress("DEPRECATION")
+fun String.getHtmlText(): Spanned? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
+    } else {
+        Html.fromHtml(this)
+    }
+}
+
+fun getSelectedBookmarked(position: Int): Boolean? {
+    return when (position) {
+        0 -> null
+        1 -> true
+        else -> false
+    }
 }

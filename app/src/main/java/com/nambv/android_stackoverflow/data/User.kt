@@ -27,4 +27,4 @@ data class User(
         @SerializedName("link") var link: String = "",
         @SerializedName("profile_image") var profileImage: String = "",
         @SerializedName("display_name") var displayName: String = "",
-        var bookmarked: Boolean = false)
+        var bookmarked: Boolean? = false)
