@@ -9,8 +9,6 @@ data class User(
 
         @PrimaryKey
         @SerializedName("user_id") var userId: Int = 0,
-
-//        @SerializedName("badge_counts") var badgeCounts: BadgeCounts = BadgeCounts(),
         @SerializedName("account_id") var accountId: Int = 0,
         @SerializedName("is_employee") var isEmployee: Boolean = false,
         @SerializedName("last_modified_date") var lastModifiedDate: Int = 0,

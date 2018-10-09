@@ -2,9 +2,15 @@ package com.nambv.android_stackoverflow.repository
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
+import com.github.ajalt.timberkt.Timber
+import com.nambv.android_stackoverflow.data.User
+import com.nambv.android_stackoverflow.data.local.dao.UserDao
 import com.nambv.android_stackoverflow.data.local.db.AppDatabase
 import com.nambv.android_stackoverflow.service.UserService
+import com.nambv.android_stackoverflow.utils.getOffsetByPage
 import com.nambv.android_stackoverflow.view.result.UsersState
+import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -12,8 +18,9 @@ import io.reactivex.schedulers.Schedulers
 object UsersRepository {
 
     private var usersDisposable: Disposable? = null
+    private var updateDisposable: Disposable? = null
 
-    fun fetchUsers(application: Application, page: Int, pageSize: Int): MutableLiveData<UsersState> {
+    fun fetchUsers(application: Application, page: Int, pageSize: Int, bookmarked: Boolean?): MutableLiveData<UsersState> {
 
         val usersLiveData = MutableLiveData<UsersState>()
 
@@ -26,19 +33,52 @@ object UsersRepository {
 
         usersDisposable?.let { if (usersDisposable?.isDisposed == false) usersDisposable?.dispose() }
 
-        usersDisposable = UserService.fetchUsers(page, pageSize)
+        usersDisposable = filterUsers(page, pageSize, bookmarked, userDao)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         {
-                            if (it.isNotEmpty()) {
-                                usersLiveData.postValue(UsersState.Data(it))
-                            }
+                            usersLiveData.postValue(UsersState.Data(it))
                         },
                         {
                             usersLiveData.postValue(UsersState.Error(it))
                         })
 
         return usersLiveData
+    }
+
+    fun updateUser(application: Application, user: User): MutableLiveData<UsersState> {
+
+        updateDisposable?.let { if (updateDisposable?.isDisposed == false) updateDisposable?.dispose() }
+
+        val userLiveData = MutableLiveData<UsersState>()
+        val userDao = AppDatabase.get(application).userDao()
+
+        updateDisposable = Completable.fromAction { userDao.update(user) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(
+                        {
+                            Timber.w { "bookmarked: ${user.bookmarked}" }
+                            userLiveData.postValue(UsersState.Updated)
+                        },
+                        {
+                            userLiveData.postValue(UsersState.Error(it))
+                        })
+
+        return userLiveData
+    }
+
+    private fun filterUsers(page: Int, pageSize: Int, bookmarked: Boolean?, userDao: UserDao): Maybe<List<User>> {
+
+        if (null == bookmarked) {
+            return UserService.fetchUsers(page, pageSize)
+                    .flatMapMaybe { remotes ->
+                        if (remotes.isNotEmpty()) userDao.insert(remotes)
+                        return@flatMapMaybe userDao.getUserList(pageSize, getOffsetByPage(page))
+                    }
+        } else {
+            return userDao.searchUserList(bookmarked)
+        }
     }
 }

@@ -21,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
                 }
 
         private fun buildDatabase(context: Context) = Room
-                .databaseBuilder(context, AppDatabase::class.java, "creitive.db")
+                .databaseBuilder(context, AppDatabase::class.java, "stackoverflow.db")
                 .build()
     }
 }

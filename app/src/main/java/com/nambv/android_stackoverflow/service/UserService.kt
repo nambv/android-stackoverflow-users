@@ -52,7 +52,10 @@ object UserService {
         return api.fetchUsers(page, pageSize, SITE)
                 .map { response ->
                     if (response.isSuccessful) {
-                        response.body()?.let { return@map it.users }
+                        response.body()?.let {
+
+                            return@map it.users
+                        }
                     } else {
                         throw RuntimeException("Error when fetch users")
                     }
