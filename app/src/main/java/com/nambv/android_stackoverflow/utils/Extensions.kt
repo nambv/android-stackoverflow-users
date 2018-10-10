@@ -4,6 +4,8 @@ package com.nambv.android_stackoverflow.utils
 
 import android.content.Context
 import android.os.Build
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.text.Html
 import android.text.Spanned
 import com.nambv.android_stackoverflow.R
@@ -57,4 +59,10 @@ fun getSelectedBookmarked(position: Int): Boolean? {
         1 -> true
         else -> false
     }
+}
+
+fun addFragment(fragmentManager: FragmentManager, layout: Int, fragment: Fragment) {
+    fragmentManager.beginTransaction()
+            .add(R.id.frameContainer, fragment)
+            .commit()
 }
