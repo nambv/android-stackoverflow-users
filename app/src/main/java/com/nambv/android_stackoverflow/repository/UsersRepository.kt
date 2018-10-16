@@ -1,6 +1,7 @@
 package com.nambv.android_stackoverflow.repository
 
 import android.app.Application
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import com.github.ajalt.timberkt.Timber
 import com.nambv.android_stackoverflow.data.User
@@ -20,14 +21,14 @@ object UsersRepository {
     private var usersDisposable: Disposable? = null
     private var updateDisposable: Disposable? = null
 
-    fun fetchUsers(application: Application, page: Int, pageSize: Int, bookmarked: Boolean?): MutableLiveData<UsersState> {
+    fun fetchUsers(application: Application, page: Int, pageSize: Int, bookmarked: Boolean?): LiveData<UsersState> {
 
         val usersLiveData = MutableLiveData<UsersState>()
 
         if (page > 1)
-            usersLiveData.postValue(UsersState.LoadMore)
+            usersLiveData.setValue(UsersState.LoadMore)
         else
-            usersLiveData.postValue(UsersState.Refreshing)
+            usersLiveData.setValue(UsersState.Refreshing)
 
         val userDao = AppDatabase.get(application).userDao()
 
@@ -38,10 +39,10 @@ object UsersRepository {
                 .subscribeOn(Schedulers.io())
                 .subscribe(
                         {
-                            usersLiveData.postValue(UsersState.Data(it))
+                            usersLiveData.setValue(UsersState.Data(it))
                         },
                         {
-                            usersLiveData.postValue(UsersState.Error(it))
+                            usersLiveData.setValue(UsersState.Error(it))
                         })
 
         return usersLiveData
@@ -60,10 +61,10 @@ object UsersRepository {
                 .subscribe(
                         {
                             Timber.w { "bookmarked: ${user.bookmarked}" }
-                            userLiveData.postValue(UsersState.Updated)
+                            userLiveData.setValue(UsersState.Updated)
                         },
                         {
-                            userLiveData.postValue(UsersState.Error(it))
+                            userLiveData.setValue(UsersState.Error(it))
                         })
 
         return userLiveData

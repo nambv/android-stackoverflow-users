@@ -27,7 +27,7 @@
 
         <activity
             android:screenOrientation="portrait"
-            android:name=".view.detail.DetailActivity" />
+            android:name=".view.detail.ReputationActivity" />
 
     </application>
 

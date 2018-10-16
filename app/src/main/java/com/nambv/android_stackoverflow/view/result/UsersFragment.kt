@@ -15,26 +15,11 @@ import com.nambv.android_stackoverflow.utils.VerticalSpaceItemDecoration
 import com.nambv.android_stackoverflow.utils.getErrorMessage
 import com.nambv.android_stackoverflow.utils.getSelectedBookmarked
 import com.nambv.android_stackoverflow.view.base.BaseRecyclerViewFragment
-import com.nambv.android_stackoverflow.view.detail.DetailActivity
-import kotlinx.android.synthetic.main.fragment_users.*
+import com.nambv.android_stackoverflow.view.detail.ReputationActivity
+import kotlinx.android.synthetic.main.fragment_base_list.*
 
 
 class UsersFragment : BaseRecyclerViewFragment(), SwipeRefreshLayout.OnRefreshListener, UsersAdapter.Callback {
-
-    override fun onEditBookmark(user: User) {
-        viewModel.updateUser(user).observe(this, Observer {
-            when (it) {
-
-                is UsersState.Updated -> {
-                    val bookmarked = getSelectedBookmarked(filterPosition)
-                    bookmarked?.let { _ -> users.remove(user) }
-                    adapter.notifyDataSetChanged()
-                }
-
-                is UsersState.Error -> showToast(context.getErrorMessage(it.throwable))
-            }
-        })
-    }
 
     private lateinit var viewModel: UsersViewModel
     private lateinit var adapter: UsersAdapter
@@ -51,10 +36,6 @@ class UsersFragment : BaseRecyclerViewFragment(), SwipeRefreshLayout.OnRefreshLi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_users, container, false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
@@ -168,6 +149,21 @@ class UsersFragment : BaseRecyclerViewFragment(), SwipeRefreshLayout.OnRefreshLi
     }
 
     override fun onUserClicked(user: User) {
-        startActivity(DetailActivity.getIntent(context, user))
+        startActivity(ReputationActivity.getIntent(context, user))
+    }
+
+    override fun onEditBookmark(user: User) {
+        viewModel.updateUser(user).observe(this, Observer {
+            when (it) {
+
+                is UsersState.Updated -> {
+                    val bookmarked = getSelectedBookmarked(filterPosition)
+                    bookmarked?.let { _ -> users.remove(user) }
+                    adapter.notifyDataSetChanged()
+                }
+
+                is UsersState.Error -> showToast(context.getErrorMessage(it.throwable))
+            }
+        })
     }
 }

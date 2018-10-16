@@ -1,6 +1,7 @@
-package com.nambv.android_stackoverflow.data
+package com.nambv.android_stackoverflow.data.remote.response
 
 import com.google.gson.annotations.SerializedName
+import com.nambv.android_stackoverflow.data.Reputation
 
 data class ReputationResponse(
         @SerializedName("items") var items: List<Reputation> = listOf(),
