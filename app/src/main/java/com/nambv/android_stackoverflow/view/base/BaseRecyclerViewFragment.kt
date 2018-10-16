@@ -11,7 +11,7 @@ import com.nambv.android_stackoverflow.utils.EndlessRecyclerOnScrollListener
 import kotlinx.android.synthetic.main.fragment_base_list.*
 
 
-abstract class BaseRecyclerViewFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener {
+abstract class BaseRecyclerViewFragment<T : BaseViewModel> : BaseFragment<T>(), SwipeRefreshLayout.OnRefreshListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -28,9 +28,9 @@ abstract class BaseRecyclerViewFragment : BaseFragment(), SwipeRefreshLayout.OnR
     }
 
     fun setupRecyclerView(layoutManager: RecyclerView.LayoutManager,
-                                  adapter: RecyclerView.Adapter<*>,
-                                  itemDecorator: RecyclerView.ItemDecoration?,
-                                  scrollListener: EndlessRecyclerOnScrollListener?) {
+                          adapter: RecyclerView.Adapter<*>,
+                          itemDecorator: RecyclerView.ItemDecoration?,
+                          scrollListener: EndlessRecyclerOnScrollListener?) {
 
         recyclerView.layoutManager = layoutManager
         recyclerView.addItemDecoration(itemDecorator)

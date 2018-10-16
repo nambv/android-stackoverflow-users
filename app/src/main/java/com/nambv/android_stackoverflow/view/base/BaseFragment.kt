@@ -9,9 +9,12 @@ import android.view.View
 import com.nambv.android_stackoverflow.MainApplication
 
 
-abstract class BaseFragment : Fragment() {
+abstract class BaseFragment<T : BaseViewModel> : Fragment() {
 
-    var mActivity: BaseActivity? = null
+    lateinit var viewModel: T
+    var pActivity: BaseActivity? = null
+
+    protected abstract fun initViewModel(): T
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,6 +23,7 @@ abstract class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = initViewModel()
         setupView()
     }
 
@@ -27,15 +31,15 @@ abstract class BaseFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activity?.let { mActivity = it as BaseActivity }
+        activity?.let { pActivity = it as BaseActivity }
     }
 
     private fun getBaseActivity(): BaseActivity? {
-        return mActivity
+        return pActivity
     }
 
     override fun getContext(): Context {
-        return mActivity ?: activity ?: MainApplication.appContext
+        return pActivity ?: activity ?: MainApplication.appContext
     }
 
     protected fun findFragmentByTag(tag: String): Fragment {
@@ -49,19 +53,19 @@ abstract class BaseFragment : Fragment() {
     }
 
     fun showToast(message: String) {
-        mActivity?.showToast(message)
+        pActivity?.showToast(message)
     }
 
     fun hideLoading() {
-        mActivity?.hideLoading()
+        pActivity?.hideLoading()
     }
 
     fun showLoading(message: String, isCancelable: Boolean) {
-        mActivity?.showLoading(message, isCancelable)
+        pActivity?.showLoading(message, isCancelable)
     }
 
     fun showLoading(message: String) {
-        mActivity?.showLoading(message, false)
+        pActivity?.showLoading(message, false)
     }
 
     fun showDialogMessage(title: String, message: String, positiveListener: DialogInterface.OnClickListener) {
@@ -74,5 +78,10 @@ abstract class BaseFragment : Fragment() {
                     .show()
             return@let
         }
+    }
+
+    override fun onDestroy() {
+        viewModel.unSubscribe()
+        super.onDestroy()
     }
 }

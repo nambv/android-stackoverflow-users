@@ -1,23 +1,25 @@
 package com.nambv.android_stackoverflow.view.result
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LiveData
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.repository.UsersRepository
+import com.nambv.android_stackoverflow.view.base.BaseViewModel
 
-class UsersViewModel(application: Application) : AndroidViewModel(application) {
+class UsersViewModel(application: Application) : BaseViewModel(application) {
 
-    private var usersLiveData: LiveData<UsersState>? = null
-    private var userLiveData: LiveData<UsersState>? = null
+    private lateinit var usersLiveData: LiveData<UsersState>
+    private lateinit var userLiveData: LiveData<UsersState>
 
     fun fetchUsers(page: Int, pageSize: Int, bookmarked: Boolean?): LiveData<UsersState> {
         usersLiveData = UsersRepository.fetchUsers(getApplication(), page, pageSize, bookmarked)
-        return usersLiveData!!
+        addSubscribe(UsersRepository.usersDisposable)
+        return usersLiveData
     }
 
     fun updateUser(user: User): LiveData<UsersState> {
         userLiveData = UsersRepository.updateUser(getApplication(), user)
-        return userLiveData!!
+        addSubscribe(UsersRepository.updateDisposable)
+        return userLiveData
     }
 }

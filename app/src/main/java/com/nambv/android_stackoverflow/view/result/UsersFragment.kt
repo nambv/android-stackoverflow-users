@@ -6,7 +6,10 @@ import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import com.nambv.android_stackoverflow.R
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.utils.Constants.PAGE_SIZE
@@ -19,9 +22,8 @@ import com.nambv.android_stackoverflow.view.detail.ReputationActivity
 import kotlinx.android.synthetic.main.fragment_base_list.*
 
 
-class UsersFragment : BaseRecyclerViewFragment(), SwipeRefreshLayout.OnRefreshListener, UsersAdapter.Callback {
+class UsersFragment : BaseRecyclerViewFragment<UsersViewModel>(), SwipeRefreshLayout.OnRefreshListener, UsersAdapter.Callback {
 
-    private lateinit var viewModel: UsersViewModel
     private lateinit var adapter: UsersAdapter
     private lateinit var scrollListener: EndlessRecyclerOnScrollListener
 
@@ -53,9 +55,12 @@ class UsersFragment : BaseRecyclerViewFragment(), SwipeRefreshLayout.OnRefreshLi
 
     override fun setupView() {
         super.setupView()
-        viewModel = ViewModelProviders.of(this).get(UsersViewModel::class.java)
         setupRecyclerView()
         fetchUsers()
+    }
+
+    override fun initViewModel(): UsersViewModel {
+        return ViewModelProviders.of(this).get(UsersViewModel::class.java)
     }
 
     private fun setupRecyclerView() {
@@ -165,5 +170,10 @@ class UsersFragment : BaseRecyclerViewFragment(), SwipeRefreshLayout.OnRefreshLi
                 is UsersState.Error -> showToast(context.getErrorMessage(it.throwable))
             }
         })
+    }
+
+    override fun onDestroy() {
+        viewModel.unSubscribe()
+        super.onDestroy()
     }
 }

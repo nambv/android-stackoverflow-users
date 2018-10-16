@@ -18,8 +18,8 @@ import io.reactivex.schedulers.Schedulers
 
 object UsersRepository {
 
-    private var usersDisposable: Disposable? = null
-    private var updateDisposable: Disposable? = null
+    var usersDisposable: Disposable? = null
+    var updateDisposable: Disposable? = null
 
     fun fetchUsers(application: Application, page: Int, pageSize: Int, bookmarked: Boolean?): LiveData<UsersState> {
 

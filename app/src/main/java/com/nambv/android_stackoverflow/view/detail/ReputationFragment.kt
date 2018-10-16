@@ -2,10 +2,10 @@ package com.nambv.android_stackoverflow.view.detail
 
 
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import com.nambv.android_stackoverflow.data.User
-import com.nambv.android_stackoverflow.view.base.BaseRecyclerViewFragment
 
-class ReputationFragment : BaseRecyclerViewFragment() {
+class ReputationFragment : Fragment() {
 
     companion object {
 
@@ -20,12 +20,5 @@ class ReputationFragment : BaseRecyclerViewFragment() {
             detailFragment.arguments = arg
             return detailFragment
         }
-    }
-
-    override fun setupView() {
-    }
-
-    override fun onRefresh() {
-
     }
 }
