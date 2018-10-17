@@ -9,7 +9,6 @@ import com.nambv.android_stackoverflow.utils.BaseScheduler
 import com.nambv.android_stackoverflow.utils.Constants
 import com.nhaarman.mockito_kotlin.doNothing
 import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import org.junit.Before
@@ -32,7 +31,6 @@ class UsersRepositoryTest {
     @Mock
     private lateinit var scheduler: BaseScheduler
 
-
     private lateinit var userRepository: UsersRepository
 
     @Before
@@ -46,19 +44,17 @@ class UsersRepositoryTest {
     @Test
     fun test_getUsersFromNetwork() {
 
-        `when` (userDao.getUserList(0, 30)).thenReturn(Single.just(getTestUsers()))
-        `when` (userApi.fetchUsers(0, 30, Constants.SITE)).thenReturn(getTestUsersResponseSingle())
+        `when` (userDao.getUserList(30, 0)).thenReturn(Single.just(getTestUsers()))
+        `when` (userApi.fetchUsers(1, 30, Constants.SITE)).thenReturn(getTestUsersResponseSingle())
         doNothing().`when`(userDao).insert(getTestUsers())
 
-        val users = userRepository.fetchUsers(0, 30, null)
+        val users = userRepository.fetchUsers(1, 30, null)
         users.test().assertResult(getTestUsers())
 
-        verify(userDao).getUserList(0, 30)
-        verify(userApi).fetchUsers(0, 30, Constants.SITE)
+        verify(userDao).getUserList(30, 0)
+        verify(userApi).fetchUsers(1, 30, Constants.SITE)
         verify(userDao).insert(getTestUsers())
         verify(scheduler)
-
-        verifyNoMoreInteractions(userApi, userDao, scheduler)
     }
 
     companion object {
