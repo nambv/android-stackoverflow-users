@@ -6,12 +6,13 @@ import android.arch.lifecycle.MutableLiveData
 import com.github.ajalt.timberkt.Timber
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.repository.UsersRepository
+import com.nambv.android_stackoverflow.utils.SchedulerProvider
 import com.nambv.android_stackoverflow.view.base.BaseViewModel
 import io.reactivex.disposables.Disposable
 
 class UsersViewModel(application: Application) : BaseViewModel(application) {
 
-    private var usersRepository: UsersRepository = UsersRepository(getApplication(), userApi, userDao)
+    private var usersRepository: UsersRepository = UsersRepository.getInstance(userApi, userDao, baseScheduler)
 
     private var usersDisposable: Disposable? = null
     private var updateDisposable: Disposable? = null
@@ -30,10 +31,10 @@ class UsersViewModel(application: Application) : BaseViewModel(application) {
         usersDisposable = usersRepository.fetchUsers(page, pageSize, bookmarked)
                 .subscribe(
                         {
-                            usersLiveData.postValue(UsersState.Data(it))
+                            usersLiveData.setValue(UsersState.Data(it))
                         },
                         {
-                            usersLiveData.postValue(UsersState.Error(it))
+                            usersLiveData.setValue(UsersState.Error(it))
                         })
 
 
