@@ -12,7 +12,7 @@ interface UserApi {
     @GET(ApiEndpoint.API_USERS)
     fun fetchUsers(@Query("page") page: Int,
                    @Query("pagesize") pageSize: Int,
-                   @Query("site") site: String): Single<Response<UsersResponse>>
+                   @Query("site") site: String): Single<UsersResponse>
 
     @GET(ApiEndpoint.API_REPUTATION_DETAIL)
     fun fetchReputationDetail(@Query("page") page: Int,
