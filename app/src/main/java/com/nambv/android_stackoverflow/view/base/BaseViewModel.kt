@@ -2,12 +2,18 @@ package com.nambv.android_stackoverflow.view.base
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import com.nambv.android_stackoverflow.data.local.db.AppDatabase
+import com.nambv.android_stackoverflow.data.remote.ApiService
+import com.nambv.android_stackoverflow.service.UserApi
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
 abstract class BaseViewModel(application: Application) : AndroidViewModel(application) {
 
-    protected var compositeDisposable: CompositeDisposable? = null
+    internal var userApi = ApiService.apiClient.create(UserApi::class.java)
+    internal var userDao = AppDatabase.get(application).userDao()
+
+    private var compositeDisposable: CompositeDisposable? = null
 
     fun addSubscribe(disposable: Disposable?) {
 

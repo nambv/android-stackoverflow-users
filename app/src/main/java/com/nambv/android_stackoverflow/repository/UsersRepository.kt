@@ -7,19 +7,32 @@ import com.github.ajalt.timberkt.Timber
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.data.local.dao.UserDao
 import com.nambv.android_stackoverflow.data.local.db.AppDatabase
-import com.nambv.android_stackoverflow.service.UserService
+import com.nambv.android_stackoverflow.data.remote.ApiService
+import com.nambv.android_stackoverflow.service.UserApi
+import com.nambv.android_stackoverflow.utils.Constants
 import com.nambv.android_stackoverflow.utils.getOffsetByPage
 import com.nambv.android_stackoverflow.view.result.UsersState
 import io.reactivex.Completable
-import io.reactivex.Maybe
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-object UsersRepository {
+class UsersRepository constructor(application: Application, userApi: UserApi, userDao: UserDao) {
 
     var usersDisposable: Disposable? = null
     var updateDisposable: Disposable? = null
+
+    companion object {
+
+        private var instance: UsersRepository? = null
+
+        fun getInstance(application: Application, userApi: UserApi, userDao: UserDao): UsersRepository {
+            if (instance == null)  // NOT thread safe!
+                instance = UsersRepository(application, userApi, userDao)
+            return instance!!
+        }
+    }
 
     fun fetchUsers(application: Application, page: Int, pageSize: Int, bookmarked: Boolean?): LiveData<UsersState> {
 
@@ -70,13 +83,25 @@ object UsersRepository {
         return userLiveData
     }
 
-    private fun filterUsers(page: Int, pageSize: Int, bookmarked: Boolean?, userDao: UserDao): Maybe<List<User>> {
+    private fun filterUsers(page: Int, pageSize: Int, bookmarked: Boolean?, userDao: UserDao): Single<List<User>> {
+
+        val userApi: UserApi = ApiService.apiClient.create(UserApi::class.java)
 
         if (null == bookmarked) {
-            return UserService.fetchUsers(page, pageSize)
-                    .flatMapMaybe { remotes ->
+            return userApi.fetchUsers(page, pageSize, Constants.SITE)
+                    .map { response ->
+                        if (response.isSuccessful) {
+                            response.body()?.let {
+
+                                return@map it.users
+                            }
+                        } else {
+                            throw RuntimeException("Error when fetch users")
+                        }
+                    }
+                    .flatMap { remotes ->
                         if (remotes.isNotEmpty()) userDao.insert(remotes)
-                        return@flatMapMaybe userDao.getUserList(pageSize, getOffsetByPage(page))
+                        return@flatMap userDao.getUserList(pageSize, getOffsetByPage(page))
                     }
         } else {
             return userDao.searchUserList(bookmarked)
