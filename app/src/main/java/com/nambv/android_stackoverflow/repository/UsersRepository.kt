@@ -1,81 +1,55 @@
 package com.nambv.android_stackoverflow.repository
 
-import android.app.Application
-import android.arch.lifecycle.MutableLiveData
-import com.github.ajalt.timberkt.Timber
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.data.local.dao.UserDao
-import com.nambv.android_stackoverflow.data.local.db.AppDatabase
-import com.nambv.android_stackoverflow.service.UserService
+import com.nambv.android_stackoverflow.service.UserApi
+import com.nambv.android_stackoverflow.utils.BaseScheduler
+import com.nambv.android_stackoverflow.utils.Constants
 import com.nambv.android_stackoverflow.utils.getOffsetByPage
-import com.nambv.android_stackoverflow.view.result.UsersState
 import io.reactivex.Completable
-import io.reactivex.Maybe
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-object UsersRepository {
+class UsersRepository constructor(private var userApi: UserApi, private var userDao: UserDao, private var scheduler: BaseScheduler) {
 
-    private var usersDisposable: Disposable? = null
-    private var updateDisposable: Disposable? = null
+    companion object {
 
-    fun fetchUsers(application: Application, page: Int, pageSize: Int, bookmarked: Boolean?): MutableLiveData<UsersState> {
+        private var instance: UsersRepository? = null
 
-        val usersLiveData = MutableLiveData<UsersState>()
-
-        if (page > 1)
-            usersLiveData.postValue(UsersState.LoadMore)
-        else
-            usersLiveData.postValue(UsersState.Refreshing)
-
-        val userDao = AppDatabase.get(application).userDao()
-
-        usersDisposable?.let { if (usersDisposable?.isDisposed == false) usersDisposable?.dispose() }
-
-        usersDisposable = filterUsers(page, pageSize, bookmarked, userDao)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        {
-                            usersLiveData.postValue(UsersState.Data(it))
-                        },
-                        {
-                            usersLiveData.postValue(UsersState.Error(it))
-                        })
-
-        return usersLiveData
+        fun getInstance(userApi: UserApi, userDao: UserDao, scheduler: BaseScheduler): UsersRepository {
+            if (instance == null)
+                instance = UsersRepository(userApi, userDao, scheduler)
+            return instance as UsersRepository
+        }
     }
 
-    fun updateUser(application: Application, user: User): MutableLiveData<UsersState> {
-
-        updateDisposable?.let { if (updateDisposable?.isDisposed == false) updateDisposable?.dispose() }
-
-        val userLiveData = MutableLiveData<UsersState>()
-        val userDao = AppDatabase.get(application).userDao()
-
-        updateDisposable = Completable.fromAction { userDao.update(user) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe(
-                        {
-                            Timber.w { "bookmarked: ${user.bookmarked}" }
-                            userLiveData.postValue(UsersState.Updated)
-                        },
-                        {
-                            userLiveData.postValue(UsersState.Error(it))
-                        })
-
-        return userLiveData
+    fun fetchUsers(page: Int, pageSize: Int, bookmarked: Boolean?): Single<List<User>> {
+        return filterUsers(page, pageSize, bookmarked, userDao)
+                .observeOn(scheduler.ui())
+                .subscribeOn(scheduler.io())
     }
 
-    private fun filterUsers(page: Int, pageSize: Int, bookmarked: Boolean?, userDao: UserDao): Maybe<List<User>> {
+    fun updateUser(user: User): Completable {
+        return Completable.fromAction { userDao.update(user) }
+                .observeOn(scheduler.ui())
+                .subscribeOn(scheduler.io())
+    }
+
+    private fun filterUsers(page: Int, pageSize: Int, bookmarked: Boolean?, userDao: UserDao): Single<List<User>> {
 
         if (null == bookmarked) {
-            return UserService.fetchUsers(page, pageSize)
-                    .flatMapMaybe { remotes ->
+            return userApi.fetchUsers(page, pageSize, Constants.SITE)
+                    .map { response ->
+                        if (response.users.isNotEmpty()) {
+                            return@map response.users
+                        } else {
+                            throw RuntimeException("Error when fetch users")
+                        }
+                    }
+                    .flatMap { remotes ->
                         if (remotes.isNotEmpty()) userDao.insert(remotes)
-                        return@flatMapMaybe userDao.getUserList(pageSize, getOffsetByPage(page))
+                        return@flatMap userDao.getUserList(pageSize, getOffsetByPage(page))
                     }
         } else {
             return userDao.searchUserList(bookmarked)

@@ -32,42 +32,44 @@ class UsersAdapter(objects: MutableList<User>) : BaseListAdapter<User>(objects) 
     @Suppress("DEPRECATION")
     override fun onBindData(holder: RecyclerView.ViewHolder, item: User, position: Int) {
 
-        Glide.with(holder.itemView.context)
-                .load(item.profileImage)
-                .into(holder.itemView.userAvatar)
+        holder.itemView.apply {
 
-        holder.itemView.tvUserName.text = item.displayName.getHtmlText()
+            Glide.with(context)
+                    .load(item.profileImage)
+                    .into(userAvatar)
 
-        holder.itemView.tvReputation.text = item.reputation.toString()
+            tvUserName.text = item.displayName?.getHtmlText()
+            tvReputation.text = item.reputation.toString()
+            tvLocation.text = item.location?.getHtmlText()
+            tvLastAccess.text = (item.lastAccessDate * 1000).toDate().toString(DATE_FORMAT)
 
-        if (null == item.bookmarked) {
-            holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)
-        } else {
-            if (item.bookmarked == true)
-                holder.itemView.iconBookmark.setImageResource(R.drawable.ic_bookmark)
-            else
-                holder.itemView.iconBookmark.setImageResource(R.drawable.ic_unbookmark)
-        }
+            if (null == item.bookmarked) {
+                iconBookmark.setImageResource(R.drawable.ic_unbookmark)
+            } else {
+                if (item.bookmarked == true)
+                    iconBookmark.setImageResource(R.drawable.ic_bookmark)
+                else
+                    iconBookmark.setImageResource(R.drawable.ic_unbookmark)
+            }
 
-        holder.itemView.tvLocation.text = item.location.getHtmlText()
-        holder.itemView.tvLastAccess.text = (item.lastAccessDate * 1000).toDate().toString(DATE_FORMAT)
+            iconBookmark.setOnClickListener {
+                if (null == item.bookmarked)
+                    item.bookmarked = true
+                else
+                    item.bookmarked = !(item.bookmarked!!)
 
-        holder.itemView.iconBookmark.setOnClickListener {
-            if (null == item.bookmarked)
-                item.bookmarked = true
-            else
-                item.bookmarked = !(item.bookmarked!!)
+                Timber.w { "bookmarked: ${item.bookmarked}" }
+                callback.onEditBookmark(item)
+            }
 
-            Timber.w { "bookmarked: ${item.bookmarked}" }
-            callback.onEditBookmark(item)
-        }
-
-        holder.itemView.setOnClickListener {
-
+            setOnClickListener {
+                callback.onUserClicked(item)
+            }
         }
     }
 
     interface Callback {
         fun onEditBookmark(user: User)
+        fun onUserClicked(user: User)
     }
 }

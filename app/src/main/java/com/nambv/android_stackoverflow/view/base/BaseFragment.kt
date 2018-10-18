@@ -7,27 +7,14 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.view.View
 import com.nambv.android_stackoverflow.MainApplication
-import com.nambv.android_stackoverflow.R
 
 
-abstract class BaseFragment : Fragment() {
+abstract class BaseFragment<T : BaseViewModel> : Fragment() {
 
-    private var mActivity: BaseActivity? = null
+    lateinit var viewModel: T
+    var pActivity: BaseActivity? = null
 
-    interface Callback {
-
-        fun onFragmentAttached()
-
-        fun onFragmentDetached(tag: String)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is BaseActivity) {
-            mActivity = context
-            context.onFragmentAttached()
-        }
-    }
+    protected abstract fun initViewModel(): T
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,22 +23,23 @@ abstract class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpView(view, savedInstanceState)
+        viewModel = initViewModel()
+        setupView()
     }
 
-    protected abstract fun setUpView(view: View, savedInstanceState: Bundle?)
+    abstract fun setupView()
 
-    override fun onDetach() {
-        mActivity = null
-        super.onDetach()
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        activity?.let { pActivity = it as BaseActivity }
     }
 
     private fun getBaseActivity(): BaseActivity? {
-        return mActivity
+        return pActivity
     }
 
     override fun getContext(): Context {
-        return mActivity ?: activity ?:MainApplication.appContext
+        return pActivity ?: activity ?: MainApplication.appContext
     }
 
     protected fun findFragmentByTag(tag: String): Fragment {
@@ -64,37 +52,20 @@ abstract class BaseFragment : Fragment() {
         fragmentTransaction.commit()
     }
 
-    fun showError(message: String) {
-        showToast(message)
-    }
-
     fun showToast(message: String) {
-        mActivity?.showToast(message)
+        pActivity?.showToast(message)
     }
 
     fun hideLoading() {
-        mActivity?.hideLoading()
+        pActivity?.hideLoading()
     }
 
     fun showLoading(message: String, isCancelable: Boolean) {
-        mActivity?.showLoading(message, isCancelable)
+        pActivity?.showLoading(message, isCancelable)
     }
 
     fun showLoading(message: String) {
-        mActivity?.showLoading(message, false)
-    }
-
-    fun showErrorDialog(message: String) {
-        getBaseActivity()?.let {
-            val builder: AlertDialog.Builder = AlertDialog.Builder(it)
-            builder.setTitle(getString(R.string.label_error))
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok, { dialog, which ->
-                        // continue with OK
-                    })
-                    .show()
-            return@let
-        }
+        pActivity?.showLoading(message, false)
     }
 
     fun showDialogMessage(title: String, message: String, positiveListener: DialogInterface.OnClickListener) {
@@ -109,7 +80,8 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    interface InteractionListener {
-        fun navigateToWelcomeScreen()
+    override fun onDestroy() {
+        viewModel.unSubscribe()
+        super.onDestroy()
     }
 }

@@ -2,20 +2,17 @@ package com.nambv.android_stackoverflow.view.result
 
 import android.os.Bundle
 import com.nambv.android_stackoverflow.R
-import com.nambv.android_stackoverflow.view.base.BaseActivity
+import com.nambv.android_stackoverflow.utils.addFragment
+import com.nambv.android_stackoverflow.view.base.MainActivity
 
 /**
  * Weather Result View
  */
-class UsersActivity : BaseActivity() {
+class UsersActivity : MainActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_users)
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportFragmentManager.beginTransaction()
-                .add(R.id.frameContainer, UsersFragment.newInstance())
-                .commit()
+        setupActionBar(false)
+        addFragment(supportFragmentManager, R.layout.activity_main, UsersFragment.newInstance())
     }
 }

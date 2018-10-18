@@ -6,7 +6,10 @@ import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
-import android.view.*
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import com.nambv.android_stackoverflow.R
 import com.nambv.android_stackoverflow.data.User
 import com.nambv.android_stackoverflow.utils.Constants.PAGE_SIZE
@@ -14,28 +17,13 @@ import com.nambv.android_stackoverflow.utils.EndlessRecyclerOnScrollListener
 import com.nambv.android_stackoverflow.utils.VerticalSpaceItemDecoration
 import com.nambv.android_stackoverflow.utils.getErrorMessage
 import com.nambv.android_stackoverflow.utils.getSelectedBookmarked
-import com.nambv.android_stackoverflow.view.base.BaseFragment
-import kotlinx.android.synthetic.main.fragment_users.*
+import com.nambv.android_stackoverflow.view.base.BaseRecyclerViewFragment
+import com.nambv.android_stackoverflow.view.detail.ReputationActivity
+import kotlinx.android.synthetic.main.fragment_base_list.*
 
 
-class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener, UsersAdapter.Callback {
+class UsersFragment : BaseRecyclerViewFragment<UsersViewModel>(), SwipeRefreshLayout.OnRefreshListener, UsersAdapter.Callback {
 
-    override fun onEditBookmark(user: User) {
-        viewModel.updateUser(user).observe(this, Observer {
-            when (it) {
-
-                is UsersState.Updated -> {
-                    val bookmarked = getSelectedBookmarked(filterPosition)
-                    bookmarked?.let { _ -> users.remove(user) }
-                    adapter.notifyDataSetChanged()
-                }
-
-                is UsersState.Error -> showToast(context.getErrorMessage(it.throwable))
-            }
-        })
-    }
-
-    private lateinit var viewModel: UsersViewModel
     private lateinit var adapter: UsersAdapter
     private lateinit var scrollListener: EndlessRecyclerOnScrollListener
 
@@ -52,10 +40,6 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener, User
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_users, container, false)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
         inflater?.inflate(R.menu.menu_users, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -69,15 +53,14 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener, User
         return super.onOptionsItemSelected(item)
     }
 
-    override fun setUpView(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProviders.of(this).get(UsersViewModel::class.java)
-        setupSwipeRefreshLayout()
+    override fun setupView() {
+        super.setupView()
         setupRecyclerView()
         fetchUsers()
     }
 
-    private fun setupSwipeRefreshLayout() {
-        swipeRefreshLayout.setOnRefreshListener(this)
+    override fun initViewModel(): UsersViewModel {
+        return ViewModelProviders.of(this).get(UsersViewModel::class.java)
     }
 
     private fun setupRecyclerView() {
@@ -85,19 +68,14 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener, User
         val layoutManager = LinearLayoutManager(context)
         val divider = VerticalSpaceItemDecoration(30)
 
+        scrollListener = object : EndlessRecyclerOnScrollListener(layoutManager) {
+            override fun onLoadMore(currentOffset: Int) { fetchUsers() }
+        }
+
         adapter = UsersAdapter(users)
         adapter.setCallback(this)
 
-        scrollListener = object : EndlessRecyclerOnScrollListener(layoutManager) {
-            override fun onLoadMore(currentOffset: Int) {
-                fetchUsers()
-            }
-        }
-
-        recyclerView.layoutManager = layoutManager
-        recyclerView.addItemDecoration(divider)
-        recyclerView.addOnScrollListener(scrollListener)
-        recyclerView.adapter = adapter
+        setupRecyclerView(layoutManager, adapter, divider, scrollListener)
     }
 
     private fun showRefreshing() {
@@ -164,14 +142,33 @@ class UsersFragment : BaseFragment(), SwipeRefreshLayout.OnRefreshListener, User
         AlertDialog.Builder(context)
                 .setTitle(R.string.label_filter_users)
                 .setSingleChoiceItems(R.array.filters, filterPosition, null)
-                .setPositiveButton(R.string.label_ok) { dialog, i ->
+                .setPositiveButton(R.string.label_ok) { dialog, _ ->
                     dialog.dismiss()
                     filterPosition = (dialog as AlertDialog).listView.checkedItemPosition
                     onRefresh()
                 }
-                .setNegativeButton(R.string.label_cancel) { dialog, i ->
+                .setNegativeButton(R.string.label_cancel) { dialog, _ ->
                     dialog.dismiss()
                 }
                 .show()
+    }
+
+    override fun onUserClicked(user: User) {
+        startActivity(ReputationActivity.getIntent(context, user))
+    }
+
+    override fun onEditBookmark(user: User) {
+        viewModel.updateUser(user).observe(this, Observer {
+            when (it) {
+
+                is UsersState.Updated -> {
+                    val bookmarked = getSelectedBookmarked(filterPosition)
+                    bookmarked?.let { _ -> users.remove(user) }
+                    adapter.notifyDataSetChanged()
+                }
+
+                is UsersState.Error -> showToast(context.getErrorMessage(it.throwable))
+            }
+        })
     }
 }
