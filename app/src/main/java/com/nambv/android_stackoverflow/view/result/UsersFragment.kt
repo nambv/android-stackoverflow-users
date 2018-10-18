@@ -171,9 +171,4 @@ class UsersFragment : BaseRecyclerViewFragment<UsersViewModel>(), SwipeRefreshLa
             }
         })
     }
-
-    override fun onDestroy() {
-        viewModel.unSubscribe()
-        super.onDestroy()
-    }
 }

@@ -7,6 +7,8 @@ import com.nambv.android_stackoverflow.repository.UsersRepository
 import com.nambv.android_stackoverflow.service.UserApi
 import com.nambv.android_stackoverflow.utils.BaseScheduler
 import com.nambv.android_stackoverflow.utils.Constants
+import com.nambv.android_stackoverflow.utils.Constants.PAGE_SIZE
+import com.nambv.android_stackoverflow.utils.Constants.SITE
 import com.nhaarman.mockito_kotlin.doNothing
 import com.nhaarman.mockito_kotlin.verify
 import io.reactivex.Single
@@ -44,15 +46,17 @@ class UsersRepositoryTest {
     @Test
     fun test_getUsersFromNetwork() {
 
-        `when` (userDao.getUserList(30, 0)).thenReturn(Single.just(getTestUsers()))
-        `when` (userApi.fetchUsers(1, 30, Constants.SITE)).thenReturn(getTestUsersResponseSingle())
+        val page = 1
+
+        `when` (userDao.getUserList(PAGE_SIZE, 0)).thenReturn(Single.just(getTestUsers()))
+        `when` (userApi.fetchUsers(page, PAGE_SIZE, SITE)).thenReturn(getTestUsersResponseSingle())
         doNothing().`when`(userDao).insert(getTestUsers())
 
         val users = userRepository.fetchUsers(1, 30, null)
         users.test().assertResult(getTestUsers())
 
-        verify(userDao).getUserList(30, 0)
-        verify(userApi).fetchUsers(1, 30, Constants.SITE)
+        verify(userDao).getUserList(PAGE_SIZE, 0)
+        verify(userApi).fetchUsers(page, PAGE_SIZE, Constants.SITE)
         verify(userDao).insert(getTestUsers())
         verify(scheduler)
     }
